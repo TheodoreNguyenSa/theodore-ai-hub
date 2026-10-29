@@ -17,22 +17,26 @@ permissions:
 jobs:
   test:
     runs-on: windows-latest
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
       - run: npm ci
+      # --test-force-exit: on Windows node-pty keeps a ConPTY reader thread alive after the agents exit, so without it
+      # the runner waits forever once every test has passed
       - name: Tests (fake agent in ConPTY, MCP server, approvals, skills)
         run: npm test
 
   build:
     needs: test
     runs-on: windows-latest
+    timeout-minutes: 60
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm

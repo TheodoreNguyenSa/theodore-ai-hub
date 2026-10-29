@@ -10,7 +10,7 @@
   "scripts": {
     "serve": "node server/index.mjs serve --open",
     "serve:fake": "node server/index.mjs serve --open --fake-agents",
-    "test": "node --test --test-reporter=spec \"test/*.test.mjs\"",
+    "test": "node --test --test-force-exit --test-timeout=120000 --test-reporter=spec \"test/*.test.mjs\"",
     "probe": "node tools/live-probe.mjs",
     "fetch-node": "node scripts/fetch-node.mjs",
     "stage": "node scripts/stage.mjs",
