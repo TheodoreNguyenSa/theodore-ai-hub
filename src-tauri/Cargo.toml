@@ -1,7 +1,7 @@
 [package]
 name = "relay-desktop"
 version = "0.1.0"
-description = "Relay: work across AI coding CLIs on Windows"
+description = "Theodore AI Hub: work across AI coding CLIs on Windows"
 edition = "2021"
 publish = false
 

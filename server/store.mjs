@@ -1,7 +1,7 @@
-// The shared store: plain JSON files under ~/.relay, so the app, every `relay mcp` process the agents start and
+// The shared store: plain JSON files under ~/.theodore, so the app, every `relay mcp` process the agents start and
 // a person with a text editor can all read it. One file per thread; writes are atomic.
 //
-//   ~/.relay/
+//   ~/.theodore/
 //     state.json                 projects in the sidebar, recent folders, decided approvals, settings
 //     threads/<id>.json          one chat: agent, folder, native session, turns, tool calls, usage, artifacts
 //     events/<id>.jsonl          what the thread's MCP server saw (tool calls), appended by `relay mcp`
@@ -123,16 +123,16 @@ function normalize(t) {
 
 /** The artifacts folder of a thread: inside the project, git-ignored by its own .gitignore. */
 export function artifactsDir(t) {
-  return path.join(t.project || t.cwd, '.relay', 'threads', t.id, 'artifacts');
+  return path.join(t.project || t.cwd, '.theodore', 'threads', t.id, 'artifacts');
 }
 export function attachmentsDir(t) {
-  return path.join(t.project || t.cwd, '.relay', 'threads', t.id, 'attachments');
+  return path.join(t.project || t.cwd, '.theodore', 'threads', t.id, 'attachments');
 }
 
-/** Make sure `<project>/.relay/` never ends up in the user's git history. */
+/** Make sure `<project>/.theodore/` never ends up in the user's git history. */
 export function ensureRelayFolder(project) {
-  const dir = ensureDir(path.join(project, '.relay'));
+  const dir = ensureDir(path.join(project, '.theodore'));
   const gi = path.join(dir, '.gitignore');
-  if (!fs.existsSync(gi)) fs.writeFileSync(gi, '# Relay keeps chat files here (artifacts, attachments). Not part of the project.\n*\n');
+  if (!fs.existsSync(gi)) fs.writeFileSync(gi, '# Theodore AI Hub keeps chat files here (artifacts, attachments). Not part of the project.\n*\n');
   return dir;
 }

@@ -189,7 +189,7 @@ export class Controller extends EventEmitter {
     const l = this.live.get(id);
     if (l) { l.parking = true; l.host.kill(); this.live.delete(id); }
     for (const [aid, ap] of this.approvals) if (ap.threadId === id) this.approvals.delete(aid);
-    if (files) fs.rmSync(path.join(t.project || t.cwd, '.relay', 'threads', id), { recursive: true, force: true });
+    if (files) fs.rmSync(path.join(t.project || t.cwd, '.theodore', 'threads', id), { recursive: true, force: true });
     if (t.transcriptPath) this.claimed.delete(t.transcriptPath);
     this.store.deleteThread(id);
     this.pushState();
@@ -407,7 +407,7 @@ export class Controller extends EventEmitter {
     const t = this.need(id);
     const l = this.live.get(id) || this.ensureLive(id);
     if (!l) throw new Error('The agent is not running.');
-    const text = 'Please call the relay MCP tool get_handoff_context now (no arguments), then summarise it in at most 5 bullets.';
+    const text = 'Please call the theodore MCP tool get_handoff_context now (no arguments), then summarise it in at most 5 bullets.';
     l.host.paste(text); setTimeout(() => l.host.write('\r'), 250);
     t.handoffMissing = false; this.store.saveThread(t);
   }
@@ -455,7 +455,7 @@ export class Controller extends EventEmitter {
     return out;
   }
 
-  /** Save uploaded bytes into <project>/.relay/threads/<id>/attachments/ (a second file of the same name gets " (2)"). */
+  /** Save uploaded bytes into <project>/.theodore/threads/<id>/attachments/ (a second file of the same name gets " (2)"). */
   copyIn(t, name, buf) {
     const dir = ensureDir(attachmentsDir(t));
     name = path.basename(String(name || 'file')).replace(/[<>:"/\\|?*\x00-\x1f]/g, '_') || 'file';
@@ -526,7 +526,7 @@ export class Controller extends EventEmitter {
     const t = this.need(id);
     const rows = [
       ...t.tools.map(x => ({ kind: x.kind, ts: x.ts, text: `${x.name}${x.target ? ` · ${x.target}` : ''}`, status: x.status, result: x.result })),
-      ...(t.mcpCalls || []).map(x => ({ kind: 'mcp', ts: x.ts, text: `relay.${x.tool}${x.target ? ` · ${x.target}` : ''}`, status: 'ok' })),
+      ...(t.mcpCalls || []).map(x => ({ kind: 'mcp', ts: x.ts, text: `theodore.${x.tool}${x.target ? ` · ${x.target}` : ''}`, status: 'ok' })),
       ...(t.activity || []),
       ...(t.artifacts || []).map(a => ({ kind: 'artifact', ts: a.mtime, text: a.name, status: 'ok' })),
     ];

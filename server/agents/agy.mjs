@@ -1,7 +1,7 @@
 // Antigravity CLI (agy). NOT verified on Windows: the facts below come from what the Chorus project documented for agy 1.4.x
-// on macOS, and the reducer is deliberately tolerant. Everything here can be overridden in ~/.relay/agents.json
-// (see server/agents/index.mjs) without rebuilding Relay.
-//   MCP         workspace .agents/mcp_config.json (agy reads it from the chat folder; Relay adds its server, keeps yours)
+// on macOS, and the reducer is deliberately tolerant. Everything here can be overridden in ~/.theodore/agents.json
+// (see server/agents/index.mjs) without rebuilding Theodore AI Hub.
+//   MCP         workspace .agents/mcp_config.json (agy reads it from the chat folder; Theodore AI Hub adds its server, keeps yours)
 //   session     agy picks it; --log-file <per-thread file> names it; transcript ~/.gemini/antigravity-cli/brain/<id>/…/transcript.jsonl
 //   prompt      typed into the screen once it is ready
 import fs from 'node:fs';
@@ -35,7 +35,7 @@ export default {
     // .agents/mcp_config.json in the chat folder: merge, never drop the user's own servers
     const cfgFile = path.join(o.thread.cwd, '.agents', 'mcp_config.json');
     const cfg = readJson(cfgFile, {}) || {};
-    cfg.mcpServers = { ...(cfg.mcpServers || {}), relay: { command: o.mcp.command, args: o.mcp.agyArgs || o.mcp.args } };
+    cfg.mcpServers = { ...(cfg.mcpServers || {}), theodore: { command: o.mcp.command, args: o.mcp.agyArgs || o.mcp.args } };
     writeJson(cfgFile, cfg);
     const args = ['--log-file', logFileOf(o)];
     if (o.resumeId) args.push('--resume', o.resumeId);

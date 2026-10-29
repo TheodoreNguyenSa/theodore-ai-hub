@@ -16,43 +16,43 @@ const PROTOCOLS = ['2025-11-25', '2025-06-18', '2025-03-26', '2024-11-05'];
 export const TOOLS = [
   {
     name: 'get_handoff_context',
-    description: 'Load what happened in the Relay chat this one continues (or the given thread): first request, files changed, commands and results, artifacts, recent turns, last answer. Call it first when a chat says it continues another Relay thread.',
+    description: 'Load what happened in the Theodore AI Hub chat this one continues (or the given thread): first request, files changed, commands and results, artifacts, recent turns, last answer. Call it first when a chat says it continues another Theodore AI Hub thread.',
     inputSchema: { type: 'object', properties: { thread_id: { type: 'string', description: 'Optional. Defaults to the chat this one continues.' } } },
     annotations: { readOnlyHint: true, title: 'Load handoff context' },
   },
   {
     name: 'get_thread_turns',
-    description: 'Older turns of a Relay thread, page by page (newest first before `before`).',
+    description: 'Older turns of a Theodore AI Hub thread, page by page (newest first before `before`).',
     inputSchema: { type: 'object', properties: { thread_id: { type: 'string' }, before: { type: 'number', description: 'Turn number to page back from' }, limit: { type: 'number', description: 'At most 50, default 20' } }, required: ['thread_id'] },
     annotations: { readOnlyHint: true, title: 'Older turns' },
   },
   {
     name: 'list_threads',
-    description: 'Relay chats in this project folder (or every project), with agent, state and title.',
+    description: 'Theodore AI Hub chats in this project folder (or every project), with agent, state and title.',
     inputSchema: { type: 'object', properties: { all_projects: { type: 'boolean' } } },
     annotations: { readOnlyHint: true, title: 'List chats' },
   },
   {
     name: 'list_artifacts',
-    description: 'Files made for the user in a Relay thread (default: this chat). Read them with your own file tools.',
+    description: 'Files made for the user in a Theodore AI Hub thread (default: this chat). Read them with your own file tools.',
     inputSchema: { type: 'object', properties: { thread_id: { type: 'string' } } },
     annotations: { readOnlyHint: true, title: 'List artifacts' },
   },
   {
     name: 'list_skills',
-    description: "The user's Relay skills library: name and description of each skill.",
+    description: "The user's Theodore AI Hub skills library: name and description of each skill.",
     inputSchema: { type: 'object', properties: {} },
     annotations: { readOnlyHint: true, title: 'List skills' },
   },
   {
     name: 'get_skill',
-    description: 'The full SKILL.md of one skill from the Relay library.',
+    description: 'The full SKILL.md of one skill from the Theodore AI Hub library.',
     inputSchema: { type: 'object', properties: { name: { type: 'string' } }, required: ['name'] },
     annotations: { readOnlyHint: true, title: 'Read a skill' },
   },
   {
     name: 'request_approval',
-    description: 'Ask the user to decide something (a choice between options, a go/no-go) through Relay\'s approvals inbox, even when this chat is in the background. Their answer arrives as your next user message starting with "Answer:" (it may also be "Other: <their words>"). After calling this, end your turn and wait.',
+    description: 'Ask the user to decide something (a choice between options, a go/no-go) through Theodore AI Hub\'s approvals inbox, even when this chat is in the background. Their answer arrives as your next user message starting with "Answer:" (it may also be "Other: <their words>"). After calling this, end your turn and wait.',
     inputSchema: { type: 'object', properties: { question: { type: 'string' }, details: { type: 'string', description: 'Short context the user needs to decide' }, options: { type: 'array', items: { type: 'string' }, description: 'Up to 5 answers to choose from' } }, required: ['question'] },
     annotations: { readOnlyHint: false, title: 'Ask the user' },
   },
@@ -72,7 +72,7 @@ export async function runMcp(argv) {
     const cands = store.listThreads().filter(t => (!agent || t.agent === agent) && samePath(t.cwd, cwd)).sort((a, b) => (b.startedAt || b.created) - (a.startedAt || a.created));
     return cands.find(t => t.state !== 'ended') || cands[0] || null;
   };
-  // started by Gemini outside a Relay chat (the extension passes "none"): offer nothing
+  // started by Gemini outside a Theodore AI Hub chat (the extension passes "none"): offer nothing
   const inert = threadId === 'none' || threadId === '' || threadId === '${RELAY_THREAD:-none}';
   const self = () => (inert ? null : resolveThread());
   const log = (tool, extra = {}) => { const t = self(); if (t) appendLine(store.file('events', `${t.id}.jsonl`), { type: 'mcp', tool, ts: Date.now(), ...extra }); };
@@ -88,16 +88,16 @@ export async function runMcp(argv) {
         if (!id) {
           const others = store.listThreads().filter(t => t.id !== me?.id && samePath(t.project, me?.project)).slice(-8);
           log(name, { none: true });
-          return text(`This chat does not continue another Relay thread.${others.length ? ` Recent threads in this project:\n${others.map(t => `- ${t.id} · ${agentName(t.agent)} · ${t.title}`).join('\n')}\nCall get_handoff_context with one of these thread_id values to load it.` : ''}`);
+          return text(`This chat does not continue another Theodore AI Hub thread.${others.length ? ` Recent threads in this project:\n${others.map(t => `- ${t.id} · ${agentName(t.agent)} · ${t.title}`).join('\n')}\nCall get_handoff_context with one of these thread_id values to load it.` : ''}`);
         }
         const t = store.getThread(id, { fresh: true });
-        if (!t) return fail(`No Relay thread ${id}.`);
+        if (!t) return fail(`No Theodore AI Hub thread ${id}.`);
         log(name, { target: id });
         return text(buildHandoff(t));
       }
       case 'get_thread_turns': {
         const t = store.getThread(a.thread_id, { fresh: true });
-        if (!t) return fail(`No Relay thread ${a.thread_id}.`);
+        if (!t) return fail(`No Theodore AI Hub thread ${a.thread_id}.`);
         const limit = Math.min(50, Math.max(1, a.limit || 20));
         const before = a.before || Infinity;
         const page = t.turns.filter(x => x.seq < before).slice(-limit);
@@ -120,7 +120,7 @@ export async function runMcp(argv) {
       case 'list_skills': {
         log(name);
         const s = listSkills(store).filter(x => x.enabled);
-        return text(s.length ? s.map(x => `- ${x.name}: ${x.description}`).join('\n') : 'The Relay skills library is empty.');
+        return text(s.length ? s.map(x => `- ${x.name}: ${x.description}`).join('\n') : 'The Theodore AI Hub skills library is empty.');
       }
       case 'get_skill': {
         const s = readSkill(store, a.name);
@@ -128,12 +128,12 @@ export async function runMcp(argv) {
         return s ? text(s) : fail(`No skill named ${a.name}.`);
       }
       case 'request_approval': {
-        if (!me) return fail('This MCP server is not bound to a Relay chat.');
+        if (!me) return fail('This MCP server is not bound to a Theodore AI Hub chat.');
         const id = newId('q_');
         const opts = Array.isArray(a.options) ? a.options.slice(0, 5).map(x => short(x, 120)) : [];
         writeJson(store.file('requests', `${id}.json`), { id, threadId: me.id, question: short(a.question, 400), details: short(a.details || '', 1200), options: opts, ts: Date.now() });
         log(name, { request: id });
-        return text('Shown to the user in Relay. Their answer will arrive as your next user message, starting with "Answer:" (or "Other:"). End your turn now and wait for it.');
+        return text('Shown to the user in Theodore AI Hub. Their answer will arrive as your next user message, starting with "Answer:" (or "Other:"). End your turn now and wait for it.');
       }
       default: return fail(`Unknown tool ${name}`);
     }
@@ -151,8 +151,8 @@ export async function runMcp(argv) {
         case 'initialize': {
           const want = m.params?.protocolVersion;
           const me = self();
-          const note = me ? relayNote(me, artifactsDir(me)) : inert ? '' : 'Relay MCP server.';
-          reply({ protocolVersion: PROTOCOLS.includes(want) ? want : PROTOCOLS[1], capabilities: { tools: { listChanged: false } }, serverInfo: { name: 'relay', title: 'Relay', version: '0.1.0' }, instructions: note });
+          const note = me ? relayNote(me, artifactsDir(me)) : inert ? '' : 'Theodore AI Hub MCP server.';
+          reply({ protocolVersion: PROTOCOLS.includes(want) ? want : PROTOCOLS[1], capabilities: { tools: { listChanged: false } }, serverInfo: { name: 'theodore', title: 'Theodore AI Hub', version: '0.1.0' }, instructions: note });
           break;
         }
         case 'notifications/initialized': case 'notifications/cancelled': break;

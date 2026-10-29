@@ -98,10 +98,10 @@ export async function serve(o = {}) {
     openPath(b.path, { reveal: !!b.reveal });
     return { ok: true };
   });
-  /** Artifact and attachment files for the preview pane: only inside a chat's .relay folder. */
+  /** Artifact and attachment files for the preview pane: only inside a chat's .theodore folder. */
   route('GET', '/api/file', (q) => {
     const p = path.resolve(q.get('path') || '');
-    const inside = ctl.store.listThreads().some(t => { const r = path.relative(path.join(t.project || t.cwd, '.relay', 'threads', t.id), p); return r && !r.startsWith('..') && !path.isAbsolute(r); });
+    const inside = ctl.store.listThreads().some(t => { const r = path.relative(path.join(t.project || t.cwd, '.theodore', 'threads', t.id), p); return r && !r.startsWith('..') && !path.isAbsolute(r); });
     if (!inside || !fs.existsSync(p)) throw Object.assign(new Error('Not an artifact'), { status: 403 });
     return { __file: p };
   });

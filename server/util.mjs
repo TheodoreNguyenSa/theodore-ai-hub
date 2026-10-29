@@ -9,9 +9,9 @@ import { spawn, spawnSync } from 'node:child_process';
 export const isWin = process.platform === 'win32';
 export const HOME_DIR = os.homedir();
 
-/** Where Relay keeps its own data: threads, events, skills library, logs. */
+/** Where Theodore AI Hub keeps its own data: threads, events, skills library, logs. */
 export function relayHome() {
-  return process.env.RELAY_HOME || path.join(HOME_DIR, '.relay');
+  return process.env.RELAY_HOME || path.join(HOME_DIR, '.theodore');
 }
 
 export function ensureDir(p) {
@@ -185,7 +185,7 @@ export function runQuick(file, args, opts = {}) {
   return { ok: r.status === 0, code: r.status, out: `${r.stdout || ''}${r.stderr || ''}`.trim(), error: r.error?.message };
 }
 
-/** Variables an agent must not inherit when Relay itself was started from inside one (e.g. a Claude Code terminal). */
+/** Variables an agent must not inherit when Theodore AI Hub itself was started from inside one (e.g. a Claude Code terminal). */
 export const SCRUB_ENV = ['CLAUDECODE', 'CLAUDE_CODE_SESSION_ID', 'CLAUDE_CODE_CHILD_SESSION', 'CLAUDE_PID', 'CLAUDE_CODE_ENTRYPOINT', 'CLAUDE_CODE_SSE_PORT', 'CODEX_THREAD_ID', 'CODEX_SANDBOX', 'GEMINI_CLI', 'RELAY_TOKEN'];
 
 export function cleanEnv(extra = {}) {

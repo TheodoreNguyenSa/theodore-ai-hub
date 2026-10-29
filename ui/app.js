@@ -1,4 +1,4 @@
-/* Relay — the page. No framework: state comes from the server over one WebSocket, every screen is a function that
+/* Theodore AI Hub — the page. No framework: state comes from the server over one WebSocket, every screen is a function that
    returns HTML, clicks are handled by data-act attributes. The agent's own screen is one xterm.js terminal that is
    re-attached to whichever chat is open. */
 'use strict';
@@ -146,13 +146,13 @@ const go = (h) => { if (location.hash === h) route(); else location.hash = h; };
 
 function renderChrome() {
   const side = $('#side');
-  if (!S.state) { side.innerHTML = `<div class="brand">${icon.logo}<b>Relay</b></div>`; return; }
+  if (!S.state) { side.innerHTML = `<div class="brand">${icon.logo}<b>Theodore AI Hub</b></div>`; return; }
   const r = S.route;
   const asks = S.state.approvals.length;
   const frontProject = r.name === 'chat' ? chatById(r.id)?.project : r.name === 'new' ? (S.nc?.folder || r.folder) : null;
   const projects = S.state.projects;
   side.innerHTML = `
-    <div class="brand">${icon.logo}<b>Relay</b><span class="grow"></span>
+    <div class="brand">${icon.logo}<b>Theodore AI Hub</b><span class="grow"></span>
       <button class="icon-btn" data-act="toggle-side" title="Hide the sidebar (Ctrl+Shift+B)" aria-label="Hide the sidebar">${icon.side}</button></div>
     <nav class="nav" aria-label="Main">
       <button class="primary ${r.name === 'new' ? 'on' : ''}" data-act="go" data-to="#/new"><span class="ic">${icon.plus}</span>New chat<span class="kbd">Ctrl+Shift+N</span></button>
@@ -168,7 +168,7 @@ function renderChrome() {
       <button data-act="go" data-to="#/doctor" class="${r.name === 'doctor' ? 'on' : ''}">Doctor</button>
       <button data-act="go" data-to="#/settings" title="Settings" aria-label="Settings">${icon.gear}</button>
     </div>`;
-  document.title = asks ? `(${asks}) Relay` : 'Relay';
+  document.title = asks ? `(${asks}) Theodore AI Hub` : 'Theodore AI Hub';
   $('#app').classList.toggle('no-side', !S.sideOpen);
 }
 
@@ -211,7 +211,7 @@ function renderMain() {
   if (r.name === 'chat') return renderChat();
   const main = $('#main');
   const page = { new: pageNew, handoff: pageNew, approvals: pageApprovals, memory: pageMemory, skills: pageSkills, doctor: pageDoctor, settings: pageSettings }[r.name];
-  if (!page) { main.innerHTML = topBar('Relay') + '<div class="page"><div class="page-inner"><p class="muted">Loading…</p></div></div>'; return; }
+  if (!page) { main.innerHTML = topBar('Theodore AI Hub') + '<div class="page"><div class="page-inner"><p class="muted">Loading…</p></div></div>'; return; }
   page(main);
 }
 
@@ -329,7 +329,7 @@ function renderChat() {
   const id = S.route.id;
   const c = chatById(id);
   const main = $('#main');
-  if (!c) { main.innerHTML = topBar('Chat not found') + `<div class="page"><div class="page-inner"><div class="empty"><b>This chat is not in Relay any more.</b><button class="btn" data-act="go" data-to="#/new">Start a new chat</button></div></div></div>`; return; }
+  if (!c) { main.innerHTML = topBar('Chat not found') + `<div class="page"><div class="page-inner"><div class="empty"><b>This chat is not in Theodore AI Hub any more.</b><button class="btn" data-act="go" data-to="#/new">Start a new chat</button></div></div></div>`; return; }
   store.set('lastChat', id);
   if (!$('#termwrap') || main.dataset.chat !== id) {
     main.dataset.chat = id;
@@ -468,7 +468,7 @@ async function pageNew(main) {
   const anyInstalled = info.agents.some(x => x.installed);
   main.innerHTML = topBar(isHandoff ? 'Hand off' : 'New chat', isHandoff && src ? short(src.title, 40) : '') + `<div class="page"><div class="page-inner">
     <h1>${isHandoff ? `Continue “${esc(short(src?.title, 50))}” with another agent` : 'Start a chat'}</h1>
-    <p class="lede">${isHandoff ? `A new chat opens in the same folder. Its first message asks the agent to load what ${esc(AGENT[src?.agent]?.name || '')} did through Relay, sum it up in five bullets, and wait for your OK. The earlier chat keeps running.` : 'Pick an agent and a project folder. You work in the agent’s own screen; Relay keeps the chat, its approvals and its files in one place.'}</p>
+    <p class="lede">${isHandoff ? `A new chat opens in the same folder. Its first message asks the agent to load what ${esc(AGENT[src?.agent]?.name || '')} did through Theodore AI Hub, sum it up in five bullets, and wait for your OK. The earlier chat keeps running.` : 'Pick an agent and a project folder. You work in the agent’s own screen; Theodore AI Hub keeps the chat, its approvals and its files in one place.'}</p>
     <form class="panel pad" id="ncform" autocomplete="off">
       <div class="field"><div class="label">Agent</div>
         <div class="agent-pick" role="radiogroup">${info.agents.map(x => `<button type="button" role="radio" aria-checked="${x.id === f.agent}" class="${x.id === f.agent ? 'on' : ''}" style="--agent:${AGENT[x.id].color}" data-act="nc-agent" data-agent="${x.id}" ${x.installed ? '' : 'disabled'}>
@@ -490,7 +490,7 @@ async function pageNew(main) {
         <textarea id="nc-prompt" class="input" data-input="nc-prompt" rows="4" placeholder="What should the agent do? Drop files here to add their paths.">${esc(f.prompt)}</textarea></div>`}
       <div class="field"><label class="check"><input type="checkbox" data-change="nc-skip" ${f.skip ? 'checked' : ''}>
         <span><b>Skip permission prompts</b> <span class="muted">starts ${esc(a.name)} with <code>${esc(a.skipFlag)}</code></span><br>
-        <span class="muted" style="font-size:12.5px">${f.skip ? 'Nothing reaches the approvals inbox: the agent runs commands and edits files without asking.' : 'Off: the agent asks, and Relay shows each request in Approvals.'}</span></span></label></div>
+        <span class="muted" style="font-size:12.5px">${f.skip ? 'Nothing reaches the approvals inbox: the agent runs commands and edits files without asking.' : 'Off: the agent asks, and Theodore AI Hub shows each request in Approvals.'}</span></span></label></div>
       <div class="formfoot"><span class="muted" style="font-size:12.5px">Ctrl+Enter starts the chat</span>
         <button class="btn primary" type="submit" ${a.installed ? '' : 'disabled'}>${isHandoff ? `Continue in ${esc(a.name)}` : 'Start chat'}</button></div>
     </form></div></div>`;
@@ -544,7 +544,7 @@ function pageApprovals(main) {
   const list = st.approvals.filter(a => S.approvalsScope === 'all' || samePath(a.project, lastProject));
   main.innerHTML = topBar('Approvals') + `<div class="page"><div class="page-inner">
     <h1>Approvals</h1>
-    <p class="lede">What your agents are waiting on, from every chat: their own permission prompts (answering types the agent’s key for you) and questions they asked through Relay (your choice becomes your next message to that agent). You don’t have to switch to the chat.</p>
+    <p class="lede">What your agents are waiting on, from every chat: their own permission prompts (answering types the agent’s key for you) and questions they asked through Theodore AI Hub (your choice becomes your next message to that agent). You don’t have to switch to the chat.</p>
     <div class="inline" style="justify-content:space-between;margin-bottom:12px">
       <div class="tabs" role="tablist"><button role="tab" class="${S.approvalsScope === 'all' ? 'on' : ''}" data-act="scope" data-scope="all">All projects</button><button role="tab" class="${S.approvalsScope === 'project' ? 'on' : ''}" data-act="scope" data-scope="project" ${lastProject ? '' : 'disabled'}>This project</button></div>
       <span class="muted">${list.length} waiting</span></div>
@@ -615,7 +615,7 @@ function pageMemory(main) {
   S.memory.sel = S.route.id || S.memory.sel;
   main.innerHTML = topBar('Memory') + `<div class="page"><div class="page-inner wide">
     <h1>Memory</h1>
-    <p class="lede">Every chat Relay recorded, in every project: what was asked, the last answer, files and tools. It is what an agent gets from <code>get_handoff_context</code> when it continues a chat. Stored in <code>${esc(S.state.home)}</code>.</p>
+    <p class="lede">Every chat Theodore AI Hub recorded, in every project: what was asked, the last answer, files and tools. It is what an agent gets from <code>get_handoff_context</code> when it continues a chat. Stored in <code>${esc(S.state.home)}</code>.</p>
     <div class="inline" style="margin-bottom:14px"><div class="search" style="flex:1;max-width:460px">${icon.search}<input class="input" id="memq" data-input="mem-q" value="${esc(S.memory.q)}" placeholder="Search chats, answers, files, commands" aria-label="Search memory"></div><span class="muted" id="memcount"></span></div>
     <div id="memory"></div></div></div>`;
   $('#memq').focus();
@@ -682,7 +682,7 @@ async function pageDoctor(main) {
   for (const c of S.doctor.checks || []) (groups[c.group] ||= []).push(c);
   main.innerHTML = topBar('Doctor') + `<div class="page"><div class="page-inner">
     <h1>Doctor</h1>
-    <p class="lede">Which agent CLIs Relay can start on this computer, their versions, and whether they are signed in. Install one, then press Check again.</p>
+    <p class="lede">Which agent CLIs Theodore AI Hub can start on this computer, their versions, and whether they are signed in. Install one, then press Check again.</p>
     <div class="inline" style="margin-bottom:12px"><button class="btn" data-act="go-doctor">Check again</button><button class="btn ghost" data-act="copy-doctor">Copy report</button></div>
     ${S.doctor.error ? `<p class="bad">${esc(S.doctor.error)}</p>` : Object.entries(groups).map(([g, list]) => `<h2>${esc(g)}</h2><div class="panel">${list.map(c => `<div class="check-row"><span class="${c.ok === true ? 'ok' : c.ok === false ? 'bad' : 'muted'}">${c.ok === true ? '✔' : c.ok === false ? '✖' : '•'}</span><span>${esc(c.name)}</span>
       <span class="d">${esc(c.detail)}${c.fix ? `<span class="fix">${esc(c.fix)}<button class="btn small ghost" data-act="copy" data-text="${esc(c.fix)}">Copy</button></span>` : ''}</span></div>`).join('')}</div>`).join('')}
@@ -701,7 +701,7 @@ async function pageSettings(main) {
       <div class="field"><label for="set-theme">Theme</label><select id="set-theme" class="input" data-change="set-theme" style="max-width:260px">${['system', 'light', 'dark'].map(t => `<option value="${t}" ${t === theme ? 'selected' : ''}>${{ system: 'Follow Windows', light: 'Light', dark: 'Dark' }[t]}</option>`).join('')}</select></div>
       <div class="field"><label for="set-live">Agents kept running</label><input id="set-live" type="number" min="1" max="20" class="input" style="max-width:120px" value="${esc(st.maxLive || 6)}" data-change="set-live">
         <p class="muted" style="margin:6px 0 0;font-size:12.5px">One agent CLI can use 250 MB of memory or more. Past this number, the chat you used longest ago is paused and resumes when you open it.</p></div>
-      <div class="field"><label class="check"><input type="checkbox" data-change="set-notify" ${store.get('notify', true) ? 'checked' : ''}><span><b>Windows notifications</b><br><span class="muted" style="font-size:12.5px">When Relay is in the background and an agent asks for permission or finishes.</span></span></label></div>
+      <div class="field"><label class="check"><input type="checkbox" data-change="set-notify" ${store.get('notify', true) ? 'checked' : ''}><span><b>Windows notifications</b><br><span class="muted" style="font-size:12.5px">When Theodore AI Hub is in the background and an agent asks for permission or finishes.</span></span></label></div>
       <div class="field"><div class="label">Data folder</div><div class="inline"><code style="flex:1">${esc(S.state.home)}</code><button class="btn small" data-act="open" data-path="${esc(S.state.home)}">Open</button></div>
         <p class="muted" style="margin:6px 0 0;font-size:12.5px">Per-agent overrides (path to the CLI, extra arguments, environment) go in <code>agents.json</code> there.</p></div>
     </div>
@@ -830,7 +830,7 @@ async function chatMenu(id) {
 
 async function deleteChat(id) {
   const c = chatById(id);
-  const r = await confirmBox({ title: 'Delete this chat?', text: `The agent stops and Relay forgets this chat’s record. ${esc(AGENT[c?.agent]?.name || 'The agent')}’s own transcript stays where it keeps it.`, ok: 'Delete chat', danger: true, check: 'Also delete its artifacts and attached files' });
+  const r = await confirmBox({ title: 'Delete this chat?', text: `The agent stops and Theodore AI Hub forgets this chat’s record. ${esc(AGENT[c?.agent]?.name || 'The agent')}’s own transcript stays where it keeps it.`, ok: 'Delete chat', danger: true, check: 'Also delete its artifacts and attached files' });
   if (!r) return;
   await act(() => api('DELETE', `/api/chats/${id}${r.check ? '?files=1' : ''}`));
   if (currentChatId() === id) go('#/new');
@@ -924,7 +924,7 @@ function showDrops(two, zone) {
   const el = $('#drops');
   if (!el) return;
   el.innerHTML = `<div class="dropzones ${two ? '' : 'one'}">${two ? `<div class="${zone === 'path' ? 'hot' : ''}"><b>Add the path</b><span>The agent reads the file where it is.</span></div>` : ''}
-    <div class="${zone === 'copy' || !two ? 'hot' : ''}"><b>Copy into the chat</b><span>A copy goes in the chat’s folder (.relay\\threads\\…\\attachments), so the agent can read it without asking.</span></div></div>`;
+    <div class="${zone === 'copy' || !two ? 'hot' : ''}"><b>Copy into the chat</b><span>A copy goes in the chat’s folder (.theodore\\threads\\…\\attachments), so the agent can read it without asking.</span></div></div>`;
 }
 function hideDrops() { const el = $('#drops'); if (el) el.innerHTML = ''; }
 function quotePath(p) { return /\s/.test(p) ? `"${p}"` : p; }

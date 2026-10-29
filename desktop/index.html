@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Relay</title>
+<title>Theodore AI Hub</title>
 <style>
   :root { color-scheme: light dark; }
   body { margin: 0; height: 100vh; display: grid; place-items: center; font: 14px/1.5 "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif; background: #eef1f4; color: #18202b; }
@@ -19,14 +19,14 @@
 <body>
 <main>
   <svg width="64" height="64" viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="#b65a35"/><stop offset="1" stop-color="#3346d3"/></linearGradient></defs><path d="M10 42 C 20 42, 22 22, 32 22 S 44 42, 54 42" fill="none" stroke="url(#g)" stroke-width="8" stroke-linecap="round"/><circle cx="10" cy="42" r="6.5" fill="#b65a35"/><circle cx="54" cy="42" r="6.5" fill="#3346d3"/></svg>
-  <h1 id="t">Starting Relay…</h1>
+  <h1 id="t">Starting Theodore AI Hub…</h1>
   <p id="s">Finding your agents and opening the chats you left.</p>
   <div class="err" id="e"></div>
 </main>
 <script>
   window.relayError = function (msg) {
-    document.getElementById('t').textContent = 'Relay could not start';
-    document.getElementById('s').textContent = 'The log is in the .relay folder of your user profile (desktop.log, server.log).';
+    document.getElementById('t').textContent = 'Theodore AI Hub could not start';
+    document.getElementById('s').textContent = 'The log is in the .theodore folder of your user profile (desktop.log, server.log).';
     var e = document.getElementById('e'); e.style.display = 'block'; e.textContent = msg;
   };
 </script>

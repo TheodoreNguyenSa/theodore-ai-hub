@@ -1,5 +1,5 @@
 // A fake agent (tools/fake-tui.mjs) that behaves like a small Claude Code: its own screen in a PTY, a Claude-format
-// transcript, a permission prompt, artifacts, and a real call to the relay MCP server. For tests and UI work:
+// transcript, a permission prompt, artifacts, and a real call to the theodore MCP server. For tests and UI work:
 // `relay serve --fake-agents` (or RELAY_FAKE_AGENTS=1). Never used for real chats.
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';

@@ -3,7 +3,7 @@
 //   ~/.claude/skills/<name>   Claude Code
 //   ~/.agents/skills/<name>   Codex (verified 0.165: listed as a skill root) and Gemini CLI (0.66 docs: user skills alias), agy
 // On Windows the link is a directory junction (no admin or developer mode needed); if even that fails, a copy marked with
-// .relay-managed. Relay only ever removes links and copies it made itself.
+// .theodore-managed. Theodore AI Hub only ever removes links and copies it made itself.
 import fs from 'node:fs';
 import path from 'node:path';
 import { HOME_DIR, ensureDir, isWin, readJson, samePath, writeJson } from './util.mjs';
@@ -101,7 +101,7 @@ function isOurs(p, store) {
       const to = fs.readlinkSync(p).replace(/^\\\\\?\\/, '').replace(/[\\/]+$/, '');
       return samePath(path.dirname(path.resolve(path.dirname(p), to)), libDir(store));
     }
-    return st.isDirectory() && fs.existsSync(path.join(p, '.relay-managed'));
+    return st.isDirectory() && fs.existsSync(path.join(p, '.theodore-managed'));
   } catch { return false; }
 }
 
@@ -112,7 +112,7 @@ function link(src, dest) {
     return 'link';
   } catch {
     fs.cpSync(src, dest, { recursive: true });
-    fs.writeFileSync(path.join(dest, '.relay-managed'), 'Copied by Relay from its skills library; Relay replaces or removes this folder.\n');
+    fs.writeFileSync(path.join(dest, '.theodore-managed'), 'Copied by Theodore AI Hub from its skills library; Theodore AI Hub replaces or removes this folder.\n');
     return 'copy';
   }
 }

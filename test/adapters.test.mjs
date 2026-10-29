@@ -63,8 +63,8 @@ test('tool names from every CLI are classified', () => {
   assert.equal(classifyTool('replace', { file_path: 'a.ts' }).kind, 'edit');
   assert.deepEqual(classifyTool('apply_patch', '*** Begin Patch\n*** Update File: src/x.ts\n*** End Patch').target, 'src/x.ts');
   assert.equal(classifyTool('PowerShell', { command: 'Get-ChildItem' }).target, 'Get-ChildItem');
-  assert.equal(classifyTool('mcp__relay__get_handoff_context', {}).kind, 'mcp');
-  assert.equal(classifyTool('mcp_relay_list_threads', {}).kind, 'mcp');
+  assert.equal(classifyTool('mcp__theodore__get_handoff_context', {}).kind, 'mcp');
+  assert.equal(classifyTool('mcp_theodore_list_threads', {}).kind, 'mcp');
   assert.equal(unwrapShell(['powershell.exe', '-Command', 'npm test']), 'npm test');
   assert.equal(unwrapShell(['cmd.exe', '/c', 'dir', '/b']), 'dir /b');
   assert.deepEqual(patchFiles('*** Add File: a.md\n+x\n*** Delete File: b.md'), ['a.md', 'b.md']);
@@ -77,16 +77,16 @@ test('Windows: npm shims run their real program; cmd and TOML quoting keep backs
   assert.match(shimTarget(exeShim, 'C:\\npm', () => true), /claude\.exe$/);
   assert.equal(cmdQuote('C:\\Program Files\\x'), '"C:\\Program Files\\x"');
   assert.equal(cmdQuote('a&b'), '"a^&b"');
-  assert.equal(tomlStr('C:\\Program Files\\Relay\\node\\node.exe'), "'C:\\Program Files\\Relay\\node\\node.exe'");
+  assert.equal(tomlStr('C:\\Program Files\\Theodore AI Hub\\node\\node.exe'), "'C:\\Program Files\\Theodore AI Hub\\node\\node.exe'");
   assert.equal(tomlStr("it's"), '"it\'s"');
   assert.equal(tomlArr(['a', 'C:\\b']), "['a','C:\\b']");
 });
 
 test('Codex launch: the MCP server as one inline table, approvals on request unless skipped', () => {
   const t = { id: 't_1', cwd: 'C:\\code\\app', title: 'x' };
-  const l = codex.launch({ thread: t, mcp: { command: 'C:\\Relay\\node\\node.exe', args: ['C:\\Relay\\app\\server\\index.mjs', 'mcp', '--thread', 't_1'] }, note: 'This chat is Relay thread t_1.', files: '.' });
+  const l = codex.launch({ thread: t, mcp: { command: 'C:\\Theodore AI Hub\\node\\node.exe', args: ['C:\\Theodore AI Hub\\app\\server\\index.mjs', 'mcp', '--thread', 't_1'] }, note: 'This chat is Theodore AI Hub thread t_1.', files: '.' });
   const mcp = l.args[l.args.indexOf('-c') + 1];
-  assert.equal(mcp, "mcp_servers.relay={command='C:\\Relay\\node\\node.exe',args=['C:\\Relay\\app\\server\\index.mjs','mcp','--thread','t_1'],startup_timeout_sec=30}");
+  assert.equal(mcp, "mcp_servers.theodore={command='C:\\Theodore AI Hub\\node\\node.exe',args=['C:\\Theodore AI Hub\\app\\server\\index.mjs','mcp','--thread','t_1'],startup_timeout_sec=30}");
   assert.deepEqual(l.args.slice(l.args.indexOf('-a'), l.args.indexOf('-a') + 2), ['-a', 'on-request']);
   const s = codex.launch({ thread: t, mcp: { command: 'n', args: [] }, note: 'n', files: '.', skip: true, resumeId: 'abc' });
   assert.ok(s.args.includes('--dangerously-bypass-approvals-and-sandbox') && !s.args.includes('-a'));

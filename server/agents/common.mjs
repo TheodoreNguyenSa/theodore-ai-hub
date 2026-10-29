@@ -5,7 +5,7 @@ import { short } from '../util.mjs';
 
 /** What every chat is told at start (not in the user's prompt): where files for the user go, how to ask. */
 export function relayNote(t, artifactsPath) {
-  return `This chat is Relay thread ${t.id}. Files meant for the user (notes, plans, reports, mockups, anything that is not source code of the project) go in ${artifactsPath} (create it if missing); Relay shows them in its Artifacts view. To continue work from another Relay chat, call the relay MCP tool get_handoff_context. To ask the user to choose between options, you may call the relay tool request_approval and then end your turn.`;
+  return `This chat is Theodore AI Hub thread ${t.id}. Files meant for the user (notes, plans, reports, mockups, anything that is not source code of the project) go in ${artifactsPath} (create it if missing); Theodore AI Hub shows them in its Artifacts view. To continue work from another Theodore AI Hub chat, call the theodore MCP tool get_handoff_context. To ask the user to choose between options, you may call the theodore tool request_approval and then end your turn.`;
 }
 
 /** TOML string for codex -c overrides: a literal string when possible (no escaping of Windows backslashes). */
@@ -45,7 +45,7 @@ export function classifyTool(name, input) {
   const n = String(name || 'tool');
   const i = input && typeof input === 'object' ? input : safeJson(input) || {};
   const base = n.replace(/^mcp__[^_]+__/, '').replace(/^functions\./, '');
-  if (/^mcp__|^mcp_|\//.test(n) || /relay/.test(n)) return { name: n, kind: 'mcp', target: n.replace(/^mcp__/, '').replace('__', '.') };
+  if (/^mcp__|^mcp_|\//.test(n) || /theodore/.test(n)) return { name: n, kind: 'mcp', target: n.replace(/^mcp__/, '').replace('__', '.') };
   if (FILE_TOOLS.test(base)) {
     const files = i.file_path || i.path || i.notebook_path || i.filename || i.target_file || (typeof i.input === 'string' ? patchFiles(i.input).join(', ') : '') || (typeof input === 'string' ? patchFiles(input).join(', ') : '');
     return { name: n, kind: 'edit', target: String(files || '') };

@@ -2,9 +2,9 @@
 // The fake agent's screen. Types like a terminal app: a banner, an input line, a spinner while "working".
 //   a message containing "approve"  → a Claude-style permission prompt (Enter = yes, Esc = no)
 //   "artifact"                      → writes notes.md into the thread's artifacts folder
-//   "handoff" / "get_handoff_context" → calls the relay MCP server's get_handoff_context and prints the first lines
+//   "handoff" / "get_handoff_context" → calls the theodore MCP server's get_handoff_context and prints the first lines
 //   "slow"                          → works for 6 s
-// It writes a Claude Code-format transcript, so Relay's Claude reducer reads it.
+// It writes a Claude Code-format transcript, so Theodore AI Hub's Claude reducer reads it.
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
@@ -99,10 +99,10 @@ async function handle(text) {
   }
   if (/handoff|get_handoff_context/i.test(text)) {
     const id = 'toolu_' + crypto.randomBytes(4).toString('hex');
-    rec({ type: 'assistant', message: { id: 'msg_' + id, role: 'assistant', content: [{ type: 'tool_use', id, name: 'mcp__relay__get_handoff_context', input: {} }], stop_reason: 'tool_use' } });
+    rec({ type: 'assistant', message: { id: 'msg_' + id, role: 'assistant', content: [{ type: 'tool_use', id, name: 'mcp__theodore__get_handoff_context', input: {} }], stop_reason: 'tool_use' } });
     const ctx = await callMcp('get_handoff_context');
     rec({ type: 'user', message: { role: 'user', content: [{ type: 'tool_result', tool_use_id: id, content: ctx }] } });
-    out(`\x1b[32m● Called relay.get_handoff_context\x1b[0m\r\n`);
+    out(`\x1b[32m● Called theodore.get_handoff_context\x1b[0m\r\n`);
     reply = `Loaded the handoff context:\r\n${ctx.split('\n').slice(0, 6).map(l => '  ' + l).join('\r\n')}`;
   }
   say(reply.replace(/\r/g, ''));
@@ -126,7 +126,7 @@ process.stdin.on('data', (d) => {
   }
   if (busy) return;
   if (d === '\x03') process.exit(0);
-  // bracketed paste wrapper from Relay
+  // bracketed paste wrapper from Theodore AI Hub
   d = d.replace(/\x1b\[20[01]~/g, '');
   for (const ch of d) {
     if (ch === '\r' || ch === '\n') { const t = input.trim(); input = ''; if (t) handle(t); else prompt(); return; }

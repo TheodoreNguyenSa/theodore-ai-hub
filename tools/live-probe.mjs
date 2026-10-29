@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-// Drive a REAL agent CLI inside Relay, against the fake model (no account, no quota), and report what Relay saw:
-// transcript found and parsed, a permission prompt recognised and answered, the relay MCP tool called.
-// Run it on Windows after installing a CLI to check that Relay works with that version:
+// Drive a REAL agent CLI inside Theodore AI Hub, against the fake model (no account, no quota), and report what Theodore AI Hub saw:
+// transcript found and parsed, a permission prompt recognised and answered, the theodore MCP tool called.
+// Run it on Windows after installing a CLI to check that Theodore AI Hub works with that version:
 //
 //   node tools/live-probe.mjs claude            (also: codex, gemini, agy)
 //   node tools/live-probe.mjs claude --isolate  (a throwaway home folder, so the CLI's own config is not used)
@@ -67,7 +67,7 @@ try {
   await sleep(4000);
   dump(t.id, 'after start');
 
-  step('a permission prompt for the shell command (answered from Relay)');
+  step('a permission prompt for the shell command (answered from Theodore AI Hub)');
   const ap = await waitFor(() => [...ctl.approvals.values()].find(a => a.threadId === t.id), 45000, 'approval');
   if (ap) {
     dump(t.id, 'approval');
@@ -80,7 +80,7 @@ try {
   await sleep(2500);
   dump(t.id, 'after command');
 
-  step('the relay MCP tool');
+  step('the theodore MCP tool');
   ctl.live.get(t.id)?.host.paste('[[mcp:get_handoff_context]]');
   await sleep(300); ctl.input(t.id, '\r');
   const mcp = await waitFor(() => {
@@ -120,7 +120,7 @@ try {
     report.ok.handoff = !!loaded;
   }
 
-  step('what Relay recorded');
+  step('what Theodore AI Hub recorded');
   ctl.tick();
   const rec = ctl.store.getThread(t.id);
   report.ok.transcript = !!rec.transcriptPath;
@@ -132,8 +132,8 @@ try {
   report.ok.turnsParsed = rec.turns.some(x => x.role === 'user' && /relay-probe/.test(x.text)) && rec.turns.some(x => x.role === 'assistant');
   report.ok.toolParsed = rec.tools.some(x => x.kind === 'command' && /relay-probe/.test(x.target));
   report.fakeModel = fs.existsSync(logFile) ? fs.readFileSync(logFile, 'utf8').split('\n').filter(Boolean).slice(-20).map(l => JSON.parse(l)) : [];
-  // did the agent get Relay's note (artifact folder) in its instructions?
-  report.ok.noteDelivered = fs.existsSync(logFile) && fs.readFileSync(logFile, 'utf8').includes(`Relay thread ${t.id}`);
+  // did the agent get Theodore AI Hub's note (artifact folder) in its instructions?
+  report.ok.noteDelivered = fs.existsSync(logFile) && fs.readFileSync(logFile, 'utf8').includes(`Theodore AI Hub thread ${t.id}`);
 } catch (e) {
   console.error(e);
   exitCode = 1;

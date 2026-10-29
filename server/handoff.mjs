@@ -1,4 +1,4 @@
-// What the next agent reads when it continues a chat: a compact digest of the earlier thread, built from Relay's own
+// What the next agent reads when it continues a chat: a compact digest of the earlier thread, built from Theodore AI Hub's own
 // record (not from the old agent, which may have hit its plan limit). A few thousand tokens at most.
 import path from 'node:path';
 import fs from 'node:fs';
@@ -11,7 +11,7 @@ const MAX = 14000;
 export function agentName(id) { return AGENTS[id]?.name || id; }
 
 export function handoffPrompt(src) {
-  return `This chat continues the Relay thread "${short(src.title, 60)}", worked on by ${agentName(src.agent)}. Call the relay MCP tool get_handoff_context first (no arguments: it knows which chat this one continues). Then reply with at most 5 bullets: what was done, decisions, open work, and your next step. Wait for my OK before changing anything.`;
+  return `This chat continues the Theodore AI Hub thread "${short(src.title, 60)}", worked on by ${agentName(src.agent)}. Call the theodore MCP tool get_handoff_context first (no arguments: it knows which chat this one continues). Then reply with at most 5 bullets: what was done, decisions, open work, and your next step. Wait for my OK before changing anything.`;
 }
 
 /** Files the thread changed, with how often. */
@@ -20,7 +20,7 @@ export function filesTouched(t) {
   for (const x of t.tools) {
     if (x.kind !== 'edit' || !x.target) continue;
     for (const f of String(x.target).split(/,\s*/)) {
-      if (/[\\/]\.relay[\\/]threads[\\/]/.test(f)) continue; // artifacts are listed on their own
+      if (/[\\/]\.theodore[\\/]threads[\\/]/.test(f)) continue; // artifacts are listed on their own
       const rel = relTo(t.cwd, f);
       const e = m.get(rel) || { file: rel, n: 0, tool: x.name };
       e.n++; m.set(rel, e);
@@ -59,7 +59,7 @@ export function buildHandoff(t, { recent = 8 } = {}) {
   const turns = t.turns || [];
   const firstUser = turns.find(x => x.role === 'user');
   const lastAssistant = [...turns].reverse().find(x => x.role === 'assistant');
-  lines.push(`# Relay thread "${t.title}" (${t.id})`);
+  lines.push(`# Theodore AI Hub thread "${t.title}" (${t.id})`);
   lines.push(`Agent: ${agentName(t.agent)}${t.model ? ` · model ${t.model}` : ''} · folder ${t.cwd}`);
   lines.push(`Started ${new Date(t.created).toISOString()} · ${turns.length} turns · ${t.tools.length} tool calls · state ${t.state}`);
   if (t.parentId) lines.push(`It continued thread ${t.parentId}.`);

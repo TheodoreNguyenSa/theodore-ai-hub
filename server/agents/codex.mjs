@@ -1,12 +1,12 @@
 // OpenAI Codex CLI. Verified with codex-cli 0.165.0 against tools/fake-model.mjs:
 //   transcript  ~/.codex/sessions/YYYY/MM/DD/rollout-<time>-<session id>.jsonl (Codex picks the id; we find the file by
-//               the "Relay thread <id>" marker in developer_instructions, then by cwd and start time)
+//               the "Theodore AI Hub thread <id>" marker in developer_instructions, then by cwd and start time)
 //   events      event_msg task_started / task_complete (busy), item_completed UserMessage / AgentMessage / CommandExecution,
 //               response_item function_call / custom_tool_call (apply_patch), token_count (usage, rate_limits)
-//   MCP         -c mcp_servers.relay.command=… -c mcp_servers.relay.args=[…]   (per session, ~/.codex/config.toml untouched)
+//   MCP         -c mcp_servers.theodore.command=… -c mcp_servers.theodore.args=[…]   (per session, ~/.codex/config.toml untouched)
 //   note        -c developer_instructions=…
 //   skip        --dangerously-bypass-approvals-and-sandbox, else -a on-request ; effort: -c model_reasoning_effort="…"
-//   MCP tools   reach the model as a namespace tool mcp__relay (its description is our server's instructions)
+//   MCP tools   reach the model as a namespace tool mcp__theodore (its description is our server's instructions)
 import fs from 'node:fs';
 import path from 'node:path';
 import { HOME_DIR, samePath } from '../util.mjs';
@@ -36,12 +36,12 @@ export default {
     const args = [];
     if (o.resumeId) args.push('resume');
     // one inline table: separate -c keys for command and args left a half-built server entry in some config loads
-    args.push('-c', `mcp_servers.relay={command=${tomlStr(o.mcp.command)},args=${tomlArr(o.mcp.args)},startup_timeout_sec=30}`,
+    args.push('-c', `mcp_servers.theodore={command=${tomlStr(o.mcp.command)},args=${tomlArr(o.mcp.args)},startup_timeout_sec=30}`,
       '-c', `developer_instructions=${tomlStr(o.note)}`);
     if (o.model) args.push('-m', o.model);
     if (o.effort) args.push('-c', `model_reasoning_effort="${o.effort}"`);
     // Codex 0.165 without a config defaults to a "granular" policy that rejects escalation requests without asking;
-    // on-request makes it ask, so the request reaches Relay's approvals inbox
+    // on-request makes it ask, so the request reaches Theodore AI Hub's approvals inbox
     if (o.skip) args.push('--dangerously-bypass-approvals-and-sandbox'); else args.push('-a', o.approvalPolicy || 'on-request');
     if (o.resumeId) args.push(o.resumeId);
     if (o.prompt) args.push(o.prompt);
@@ -64,12 +64,12 @@ export default {
       const byId = files.find(f => f.path.includes(t.nativeSessionId));
       if (byId) return byId.path;
     }
-    const marker = `Relay thread ${t.id}`;
+    const marker = `Theodore AI Hub thread ${t.id}`;
     let fallback = null;
     for (const f of files) {
       const head = headOf(f.path, 200_000);
       if (head.includes(marker)) return f.path;
-      if (!fallback && f.birth >= since && !/Relay thread t_/.test(head)) {
+      if (!fallback && f.birth >= since && !/Theodore AI Hub thread t_/.test(head)) {
         const meta = head.split('\n')[0];
         try { const m = JSON.parse(meta); if (samePath(m.payload?.cwd, t.cwd)) fallback = f.path; } catch { /* */ }
       }
@@ -116,7 +116,7 @@ export default {
     }
     if (o.type === 'response_item') {
       if (p.type === 'function_call' || p.type === 'local_shell_call') {
-        // MCP tools come as a namespace (mcp__relay) plus the tool name
+        // MCP tools come as a namespace (mcp__theodore) plus the tool name
         const c = classifyTool(p.namespace ? `${p.namespace}__${p.name}` : p.name || 'shell', p.arguments ?? p.action);
         upsertTool(acc, p.call_id || p.id, { ...c, status: 'running', ts: Date.parse(o.timestamp) || Date.now() });
       } else if (p.type === 'custom_tool_call') {

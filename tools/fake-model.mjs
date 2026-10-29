@@ -26,16 +26,16 @@ let lastBody = '';
 function log(o) {
   const f = logFile();
   if (!f) return;
-  // which Relay thread note (if any) reached the model in this request
-  const relay = (lastBody.match(/Relay thread t_[0-9a-f]+/) || [])[0];
+  // which Theodore AI Hub thread note (if any) reached the model in this request
+  const relay = (lastBody.match(/Theodore AI Hub thread t_[0-9a-f]+/) || [])[0];
   fs.appendFileSync(f, JSON.stringify({ t: new Date().toISOString(), ...o, relayNote: relay || null }) + '\n');
 }
 
 /** Parse the directive out of a user text. */
 export function directive(text) {
   text = String(text || '');
-  // Relay's handoff prompt (checked first: it quotes the earlier chat's title, which may hold a directive)
-  if (/This chat continues the Relay thread/.test(text)) return { kind: 'mcp', name: 'get_handoff_context' };
+  // Theodore AI Hub's handoff prompt (checked first: it quotes the earlier chat's title, which may hold a directive)
+  if (/This chat continues the Theodore AI Hub thread/.test(text)) return { kind: 'mcp', name: 'get_handoff_context' };
   let m = text.match(/\[\[shell:([\s\S]+?)\]\]/);
   if (m) return { kind: 'shell', command: m[1].trim() };
   m = text.match(/\[\[write:([^|\]]+)\|([\s\S]*?)\]\]/);
@@ -81,7 +81,7 @@ function claudePlan(body) {
   if (!tools.length) return { text: 'Fake title' };
   const d = directive(userText);
   if (d.kind === 'mcp' && !tools.some(t => t.includes(d.name)) && tools.includes('ToolSearch')) {
-    return { tool: { name: 'ToolSearch', input: { query: `select:mcp__relay__${d.name}`, max_results: 5 } } };
+    return { tool: { name: 'ToolSearch', input: { query: `select:mcp__theodore__${d.name}`, max_results: 5 } } };
   }
   if (d.kind === 'shell' && tools.includes('Bash')) return { tool: { name: 'Bash', input: { command: d.command, description: 'Run the requested command' } } };
   if (d.kind === 'shell' && tools.includes('PowerShell')) return { tool: { name: 'PowerShell', input: { command: d.command } } };
@@ -128,7 +128,7 @@ function codexPlan(body) {
   const input = body.input || [];
   const last = input[input.length - 1] || {};
   const tools = (body.tools || []).map(t => t.name || t.type).filter(Boolean);
-  // MCP servers arrive as namespace tools: {type:'namespace', name:'mcp__relay', tools:[{name:'get_handoff_context'}…]}
+  // MCP servers arrive as namespace tools: {type:'namespace', name:'mcp__theodore', tools:[{name:'get_handoff_context'}…]}
   const nsTools = (body.tools || []).filter(t => t.type === 'namespace').flatMap(ns => (ns.tools || []).map(f => ({ ns: ns.name, name: f.name })));
   if (/_output$/.test(last.type || '')) {
     const out = typeof last.output === 'string' ? last.output : JSON.stringify(last.output);
@@ -137,7 +137,7 @@ function codexPlan(body) {
   const user = [...input].reverse().find(i => i.role === 'user' && !/^<(environment_context|user_instructions|permissions)/.test(textOf(i).trim()));
   const d = directive(textOf(user));
   if (d.kind === 'shell') {
-    // ask for unsandboxed execution, so Codex shows its approval prompt (the case Relay must catch)
+    // ask for unsandboxed execution, so Codex shows its approval prompt (the case Theodore AI Hub must catch)
     if (tools.includes('exec_command')) return { call: { name: 'exec_command', arguments: { cmd: d.command, sandbox_permissions: 'require_escalated', justification: 'Do you want to let the probe write a file?' } } };
     if (tools.includes('shell_command')) return { call: { name: 'shell_command', arguments: { command: d.command } } };
     if (tools.includes('shell')) return { call: { name: 'shell', arguments: { command: ['bash', '-lc', d.command] } } };

@@ -1,6 +1,6 @@
 // Claude Code. Verified with 2.1.312 against tools/fake-model.mjs (headless and in a PTY):
 //   transcript  ~/.claude/projects/<cwd with non-alphanumerics as '-'>/<session-id>.jsonl  (we choose the id: --session-id)
-//   MCP         --mcp-config <file>; our tools pre-allowed through --settings permissions.allow ["mcp__relay"]
+//   MCP         --mcp-config <file>; our tools pre-allowed through --settings permissions.allow ["mcp__theodore"]
 //   prompts     --permission-mode manual (2.1.30x starts in auto mode, which rarely asks); skip = --dangerously-skip-permissions
 //   note        --append-system-prompt
 import fs from 'node:fs';
@@ -39,8 +39,8 @@ export default {
     const sessionId = o.resumeId || uuid();
     const mcpFile = path.join(o.files, `${o.thread.id}.claude-mcp.json`);
     const settingsFile = path.join(o.files, `${o.thread.id}.claude-settings.json`);
-    writeJson(mcpFile, { mcpServers: { relay: { type: 'stdio', command: o.mcp.command, args: o.mcp.args } } });
-    writeJson(settingsFile, { permissions: { allow: ['mcp__relay'] } });
+    writeJson(mcpFile, { mcpServers: { theodore: { type: 'stdio', command: o.mcp.command, args: o.mcp.args } } });
+    writeJson(settingsFile, { permissions: { allow: ['mcp__theodore'] } });
     const args = [];
     if (o.prompt) args.push(o.prompt); // positional first: --mcp-config is variadic
     if (o.resumeId) args.push('--resume', sessionId); else args.push('--session-id', sessionId);

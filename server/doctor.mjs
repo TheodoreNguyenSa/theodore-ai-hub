@@ -24,10 +24,10 @@ export function doctor({ fresh = false } = {}) {
 
   // environment
   const v = process.versions.node;
-  add('Relay', 'Node for the server', true, `${v} · ${process.execPath}`);
+  add('Theodore AI Hub', 'Node for the server', true, `${v} · ${process.execPath}`);
   const userNode = which('node');
-  add('Relay', 'Node on PATH (npm CLIs)', !!userNode || null, userNode ? `${runQuick(userNode, ['--version']).out} · ${userNode}` : 'none: Relay runs npm-installed CLIs with its own Node', undefined);
-  add('Relay', 'data folder', true, relayHome());
+  add('Theodore AI Hub', 'Node on PATH (npm CLIs)', !!userNode || null, userNode ? `${runQuick(userNode, ['--version']).out} · ${userNode}` : 'none: Theodore AI Hub runs npm-installed CLIs with its own Node', undefined);
+  add('Theodore AI Hub', 'data folder', true, relayHome());
   if (isWin) {
     const rel = os.release(); // 10.0.<build>
     const build = Number(rel.split('.')[2] || 0);

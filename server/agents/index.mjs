@@ -1,4 +1,4 @@
-// The four agents, plus the fake one used for tests and UI work, with the user's overrides from ~/.relay/agents.json:
+// The four agents, plus the fake one used for tests and UI work, with the user's overrides from ~/.theodore/agents.json:
 //
 //   {
 //     "claude": { "command": "C:\\Users\\me\\.local\\bin\\claude.exe", "extraArgs": ["--verbose"], "permissionMode": "acceptEdits" },

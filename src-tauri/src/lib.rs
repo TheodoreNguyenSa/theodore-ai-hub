@@ -1,4 +1,4 @@
-// The Relay window: a thin shell with no logic of its own. It starts `relay serve` on the bundled Node, waits for the
+// The Theodore AI Hub window: a thin shell with no logic of its own. It starts `relay serve` on the bundled Node, waits for the
 // line `relay serve: <url>` and shows that page. Everything else (agents, store, approvals) lives in the server.
 //
 // - The server's stdin is a pipe we hold open and never write to: `--exit-with-stdin` makes the server (and its agents)
@@ -26,7 +26,7 @@ fn relay_home() -> PathBuf {
         return PathBuf::from(h);
     }
     let home = std::env::var_os("USERPROFILE").or_else(|| std::env::var_os("HOME")).map(PathBuf::from).unwrap_or_else(|| PathBuf::from("."));
-    home.join(".relay")
+    home.join(".theodore")
 }
 
 fn log(msg: &str) {
@@ -78,10 +78,10 @@ fn show_error(app: &tauri::AppHandle, msg: &str) {
 fn start_server(app: tauri::AppHandle) {
     let resources = app.path().resource_dir().unwrap_or_else(|_| PathBuf::from("."));
     let Some(node) = find_node(&resources) else {
-        return show_error(&app, "Relay could not find Node to run its server. Reinstall Relay, or install Node.js 20+ and start Relay again.");
+        return show_error(&app, "Theodore AI Hub could not find Node to run its server. Reinstall Theodore AI Hub, or install Node.js 20+ and start Theodore AI Hub again.");
     };
     let Some(entry) = find_entry(&resources) else {
-        return show_error(&app, "Relay's server files are missing. Reinstall Relay.");
+        return show_error(&app, "Theodore AI Hub's server files are missing. Reinstall Theodore AI Hub.");
     };
     let home = std::env::var_os("USERPROFILE").or_else(|| std::env::var_os("HOME")).map(PathBuf::from).unwrap_or_else(|| PathBuf::from("."));
     let logs = relay_home();
@@ -102,7 +102,7 @@ fn start_server(app: tauri::AppHandle) {
     log(&format!("starting {} {} serve", node.display(), entry.display()));
     let mut child = match cmd.spawn() {
         Ok(c) => c,
-        Err(e) => return show_error(&app, &format!("Relay could not start its server ({}): {}", node.display(), e)),
+        Err(e) => return show_error(&app, &format!("Theodore AI Hub could not start its server ({}): {}", node.display(), e)),
     };
     #[cfg(windows)]
     let job = job::kill_on_close(&child);
@@ -117,14 +117,14 @@ fn start_server(app: tauri::AppHandle) {
         }
     }
 
-    let Some(stdout) = stdout else { return show_error(&app, "Relay's server gave no output.") };
+    let Some(stdout) = stdout else { return show_error(&app, "Theodore AI Hub's server gave no output.") };
     let started = Instant::now();
     let mut reader = BufReader::new(stdout);
     let mut line = String::new();
     loop {
         line.clear();
         match reader.read_line(&mut line) {
-            Ok(0) => return show_error(&app, &format!("Relay's server stopped while starting. Details: {}", logs.join("server.log").display())),
+            Ok(0) => return show_error(&app, &format!("Theodore AI Hub's server stopped while starting. Details: {}", logs.join("server.log").display())),
             Ok(_) => {
                 if let Some(rest) = line.trim().strip_prefix("relay serve: ") {
                     match url::Url::parse(rest) {
@@ -134,12 +134,12 @@ fn start_server(app: tauri::AppHandle) {
                                 let _ = w.navigate(u);
                             }
                         }
-                        Err(e) => show_error(&app, &format!("Relay's server printed a bad address: {}", e)),
+                        Err(e) => show_error(&app, &format!("Theodore AI Hub's server printed a bad address: {}", e)),
                     }
                     break;
                 }
             }
-            Err(e) => return show_error(&app, &format!("Reading Relay's server failed: {}", e)),
+            Err(e) => return show_error(&app, &format!("Reading Theodore AI Hub's server failed: {}", e)),
         }
     }
     // keep reading (and dropping) whatever the server prints, so its stdout pipe never fills up
@@ -204,7 +204,7 @@ pub fn run() {
         })
         .setup(|app| {
             WebviewWindowBuilder::new(app, "main", WebviewUrl::App("index.html".into()))
-                .title("Relay")
+                .title("Theodore AI Hub")
                 .inner_size(1320.0, 840.0)
                 .min_inner_size(760.0, 480.0)
                 .build()?;
@@ -227,7 +227,7 @@ pub fn run() {
             }
         })
         .build(tauri::generate_context!())
-        .expect("error while building Relay");
+        .expect("error while building Theodore AI Hub");
 
     app.run(|handle, event| {
         if let RunEvent::Exit = event {

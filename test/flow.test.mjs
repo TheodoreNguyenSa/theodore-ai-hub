@@ -91,11 +91,11 @@ test('an artifact written by the agent is listed', async () => {
   await until(() => msgs.some(m => m.t === 'toast' && /notes\.md/.test(m.text)), 5000, 'artifact toast');
 });
 
-test('handoff: a new chat for another agent loads the context through relay mcp', async () => {
+test('handoff: a new chat for another agent loads the context through the theodore MCP server', async () => {
   const { id } = await api('POST', `/api/chats/${first}/handoff`, { agent: 'codex' });
   ws.send(JSON.stringify({ t: 'attach', id, cols: 100, rows: 30 }));
-  await until(() => /Called relay\.get_handoff_context/.test(screens[id] || ''), 15000, 'MCP call');
-  await until(() => /Relay thread/.test(screens[id] || ''), 5000, 'context printed');
+  await until(() => /Called theodore\.get_handoff_context/.test(screens[id] || ''), 15000, 'MCP call');
+  await until(() => /Theodore AI Hub thread/.test(screens[id] || ''), 5000, 'context printed');
   const d = await until(async () => { const x = await api('GET', `/api/chats/${id}`); return x.handoffLoaded && x; }, 10000, 'handoff marked loaded');
   assert.equal(d.parent.id, first);
   const rec = await api('GET', `/api/chats/${first}/record`);

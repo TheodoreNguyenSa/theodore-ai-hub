@@ -2,13 +2,13 @@
 //   session     --session-id <uuid> (we choose it); transcript ~/.gemini/tmp/<project name>/chats/session-<time>-<id first 8>.jsonl
 //               JSONL: a header {sessionId, projectHash}, then messages {id, type: user|gemini, content, toolCalls, tokens};
 //               a message is written again (same id) when it changes; {"$set": …} lines carry metadata
-//   MCP         a small extension, ~/.gemini/extensions/relay/gemini-extension.json, whose relay server takes the thread from
+//   MCP         a small extension, ~/.gemini/extensions/theodore/gemini-extension.json, whose relay server takes the thread from
 //               the environment: --thread ${RELAY_THREAD:-none} (Gemini expands env vars in extension files; verified 0.66).
-//               Outside Relay RELAY_THREAD is unset, the server starts with "none" and offers no tools. trust: true, so our
+//               Outside Theodore AI Hub RELAY_THREAD is unset, the server starts with "none" and offers no tools. trust: true, so our
 //               read-only tools never prompt. ~/.gemini/settings.json is not touched.
 //               (Not GEMINI_CLI_SYSTEM_SETTINGS_PATH: Gemini skips a system settings file that is not admin-owned, which on
-//               Windows is any file Relay could write.)
-//   policy      --policy <per-thread .toml> allowing mcpName "relay" (extension policies cannot allow)
+//               Windows is any file Theodore AI Hub could write.)
+//   policy      --policy <per-thread .toml> allowing mcp_theodore_* (extension policies cannot allow)
 //   prompt      -i "<prompt>" (runs it, stays interactive); skip: --approval-mode yolo
 import fs from 'node:fs';
 import path from 'node:path';
@@ -17,18 +17,18 @@ import { classifyTool, finishAcc, isInjected, newAcc, pushTurn, textOf, upsertTo
 
 const home = () => path.join(process.env.GEMINI_CLI_HOME || HOME_DIR, '.gemini');
 
-/** Write (or refresh) Relay's Gemini extension: paths change when Relay is reinstalled or moved. */
+/** Write (or refresh) Theodore AI Hub's Gemini extension: paths change when Theodore AI Hub is reinstalled or moved. */
 export function ensureExtension(mcp) {
-  const dir = path.join(home(), 'extensions', 'relay');
+  const dir = path.join(home(), 'extensions', 'theodore');
   const file = path.join(dir, 'gemini-extension.json');
   const args = mcp.args.map(a => a);
   const at = args.indexOf('--thread');
   if (at >= 0) args[at + 1] = '${RELAY_THREAD:-none}';
   const want = {
-    name: 'relay',
+    name: 'theodore',
     version: '0.1.0',
-    description: 'Relay desktop app: handoff context, threads, artifacts and skills shared with your other coding agents. Only active in chats started by Relay.',
-    mcpServers: { relay: { command: mcp.command, args, trust: true, timeout: 60000 } },
+    description: 'Theodore AI Hub desktop app: handoff context, threads, artifacts and skills shared with your other coding agents. Only active in chats started by Theodore AI Hub.',
+    mcpServers: { theodore: { command: mcp.command, args, trust: true, timeout: 60000 } },
   };
   const cur = readJson(file, null);
   if (JSON.stringify(cur) !== JSON.stringify(want)) writeJson(file, want);
@@ -62,7 +62,7 @@ export default {
     // our tools are read-only (request_approval only shows a question): allow them for this session only.
     // An extension cannot allow tools (Gemini ignores "allow" in extension policies), a --policy file can.
     const policy = path.join(o.files, `${o.thread.id}.gemini-policy.toml`);
-    fs.writeFileSync(policy, '# Relay: let this chat call the relay MCP tools without asking\n[[rule]]\ntoolName = "mcp_relay_*"\ndecision = "allow"\npriority = 900\n');
+    fs.writeFileSync(policy, '# Theodore AI Hub: let this chat call the theodore MCP tools without asking\n[[rule]]\ntoolName = "mcp_theodore_*"\ndecision = "allow"\npriority = 900\n');
     const args = o.resumeId ? ['--resume', sessionId] : ['--session-id', sessionId];
     args.push('--policy', policy);
     if (o.model) args.push('-m', o.model);
