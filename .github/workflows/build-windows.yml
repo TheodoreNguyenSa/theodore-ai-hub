@@ -1,0 +1,72 @@
+# Tests on Windows (the flow tests run the fake agent in real ConPTY terminals), then builds the installers:
+#   Relay_<version>_x64-setup.exe  (NSIS, per-user install, no admin needed)
+#   Relay_<version>_x64_en-US.msi  (WiX)
+# Push a tag like v0.1.0 to also attach them to a GitHub Release. "Run workflow" builds them on demand.
+name: Build Windows installer
+
+on:
+  push:
+    tags: ['v*']
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  test:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Tests (fake agent in ConPTY, MCP server, approvals, skills)
+        run: npm test
+
+  build:
+    needs: test
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+      - run: npm ci
+      - name: Bundle a Node runtime (node.exe, checksum-verified)
+        run: node scripts/fetch-node.mjs --platform win32 --arch x64
+      - name: Stage server, page and runtime modules
+        run: node scripts/stage.mjs --platform win32 --arch x64
+      - name: Smoke test the staged server with the bundled node.exe
+        shell: pwsh
+        run: |
+          $env:RELAY_HOME = "$env:RUNNER_TEMP\relay-smoke"
+          $p = Start-Process -FilePath build\node\node.exe -ArgumentList 'build\app\server\index.mjs','doctor' -NoNewWindow -Wait -PassThru -RedirectStandardOutput "$env:RUNNER_TEMP\doctor.txt"
+          Get-Content "$env:RUNNER_TEMP\doctor.txt"
+          if ($p.ExitCode -ne 0) { exit 1 }
+          build\node\node.exe -e "require('./build/app/node_modules/node-pty'); console.log('node-pty loads')"
+      - name: Build the installers
+        run: npx tauri build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: relay-windows-x64
+          path: |
+            src-tauri/target/release/bundle/nsis/*.exe
+            src-tauri/target/release/bundle/msi/*.msi
+          if-no-files-found: error
+      - name: Attach to the GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            src-tauri/target/release/bundle/nsis/*.exe
+            src-tauri/target/release/bundle/msi/*.msi
+          generate_release_notes: true

@@ -1,0 +1,7 @@
+node_modules/
+build/
+src-tauri/target/
+src-tauri/gen/
+probe-*.json
+*.log
+.DS_Store
