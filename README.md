@@ -24,7 +24,7 @@ Agent vẫn là CLI thật, chạy trong terminal thật (ConPTY). Theodore AI H
 
 ## Cài đặt
 
-1. Tải `Relay_x.y.z_x64-setup.exe` ở mục **Releases** (hoặc artifact của workflow *Build Windows installer*). Bộ cài cho từng người dùng, không cần quyền admin. WebView2 được tự cài nếu máy chưa có.
+1. Tải `Theodore AI Hub_x.y.z_x64-setup.exe` ở mục [**Releases**](https://github.com/TheodoreNguyenSa/theodore-ai-hub/releases) (hoặc artifact của workflow *Build Windows installer*). Bộ cài cho từng người dùng, không cần quyền admin. WebView2 được tự cài nếu máy chưa có.
 2. Cài ít nhất một CLI và đăng nhập một lần:
    - Claude Code: `irm https://claude.ai/install.ps1 | iex` (nên có Git for Windows)
    - Codex: `npm install -g @openai/codex`
@@ -32,7 +32,7 @@ Agent vẫn là CLI thật, chạy trong terminal thật (ConPTY). Theodore AI H
    - Antigravity: cài Antigravity và bật lệnh `agy`
 3. Mở Theodore AI Hub → **New chat** → chọn agent, thư mục dự án → **Start chat**.
 
-Theodore AI Hub mang sẵn Node riêng để chạy server, nên máy không cần cài Node (trừ khi bạn cài CLI bằng npm). Bộ cài chưa ký số, nên lần đầu Windows SmartScreen có thể cảnh báo: chọn *More info → Run anyway*.
+Theodore AI Hub mang sẵn Node riêng để chạy server, nên máy không cần cài Node (trừ khi bạn cài CLI bằng npm). Khi bộ cài chưa được ký số (xem [Code signing policy](#code-signing-policy)), lần đầu Windows SmartScreen có thể cảnh báo: chọn *More info → Run anyway*.
 
 ## Phím tắt
 
@@ -101,7 +101,7 @@ Mọi thông tin riêng của từng CLI nằm trong một file `server\agents\<
 - Một cửa sổ: kích thước terminal trong cửa sổ là kích thước của agent đang mở.
 - Trạng thái "đang chạy / chờ bạn" lấy từ transcript; với agy (định dạng chưa rõ) Theodore AI Hub đoán theo hoạt động trên màn hình.
 - Hộp xin quyền được nhận ra theo chữ trên màn hình; phiên bản CLI mới đổi câu chữ thì cần cập nhật `server\approvals.mjs` (test với fixtures sẽ chỉ ra).
-- Bộ cài chưa ký số.
+- Ký số đang chờ SignPath Foundation duyệt; tới lúc đó bộ cài chưa có chữ ký.
 
 ## Cấu trúc thư mục
 
@@ -116,4 +116,16 @@ tools/           fake-model.mjs, live-probe.mjs, fake-tui.mjs
 test/            node --test, fixtures từ CLI thật
 ```
 
-Ý tưởng lấy từ [Chorus](https://github.com/chauvoluuhuong/chorus) (macOS/Linux). Theodore AI Hub là bản viết lại độc lập cho Windows, không dùng mã của Chorus; bạn tự chọn giấy phép cho dự án của mình (thêm file `LICENSE`).
+## Code signing policy
+
+Free code signing provided by [SignPath.io](https://about.signpath.io), certificate by [SignPath Foundation](https://signpath.org).
+
+- Chỉ các bản phát hành (tag `v*`) được ký, và chỉ khi được build bởi GitHub Actions từ mã nguồn trong repo này (`.github/workflows/build-windows.yml`). Mỗi yêu cầu ký phải được người duyệt chấp thuận trên SignPath.
+- Committers and reviewers: [TheodoreNguyenSa](https://github.com/TheodoreNguyenSa)
+- Approvers: [TheodoreNguyenSa](https://github.com/TheodoreNguyenSa)
+
+**Privacy policy:** This program will not transfer any information to other networked systems unless specifically requested by the user or the person installing or operating it. Theodore AI Hub itself only listens on 127.0.0.1 and stores its data in `~\.theodore`; the agent CLIs you choose to start (Claude Code, Codex, Gemini CLI, Antigravity) talk to their own providers under your accounts and their own privacy policies. The Windows installer may download the Microsoft WebView2 runtime if it is missing.
+
+## Giấy phép
+
+[MIT](LICENSE). Ý tưởng lấy từ [Chorus](https://github.com/chauvoluuhuong/chorus) (macOS/Linux); Theodore AI Hub là bản viết lại độc lập cho Windows, không dùng mã của Chorus.
