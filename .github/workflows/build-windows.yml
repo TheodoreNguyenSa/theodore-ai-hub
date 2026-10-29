@@ -104,3 +104,13 @@ jobs:
             ${{ steps.sign.outcome == 'success' && 'signed/nsis/*.exe' || 'src-tauri/target/release/bundle/nsis/*.exe' }}
             ${{ steps.sign.outcome == 'success' && 'signed/msi/*.msi' || 'src-tauri/target/release/bundle/msi/*.msi' }}
           generate_release_notes: true
+          body: |
+            **Theodore AI Hub** runs Claude Code, Codex, Gemini CLI and Antigravity side by side on Windows: every chat in
+            one window, hand work from one agent to another through an MCP server, answer their permission prompts from one
+            inbox, and keep their artifacts and skills in one place. Download `Theodore AI Hub_<version>_x64-setup.exe`
+            (per-user install, no admin rights; the MSI is the same app). Uninstall from Windows Settings > Apps.
+
+            **Code signing policy:** Free code signing provided by SignPath.io, certificate by SignPath Foundation (once
+            approved; releases before that are unsigned). Committers, reviewers and approvers: @TheodoreNguyenSa. Privacy:
+            this program will not transfer any information to other networked systems unless specifically requested by the
+            user or the person installing or operating it. See the README for details.
